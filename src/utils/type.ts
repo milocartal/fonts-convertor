@@ -22,3 +22,14 @@ export type FontDetail = {
   width: number;
   lineHeight: number;
 };
+
+export type FontVariant = {
+  filename: string;
+  url: string;
+};
+
+export type FontVariantList = {
+  manifest: {
+    fileRefs: FontVariant[];
+  };
+};

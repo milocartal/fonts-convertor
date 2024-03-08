@@ -16,9 +16,13 @@ export default function Home() {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
         {fontList?.familyMetadataList.map((font, i) => (
-          <p className="text-2xl text-white" key={i}>
+          <Link
+            href={`/${font.family}`}
+            className="text-2xl text-white"
+            key={i}
+          >
             {font.family}
-          </p>
+          </Link>
         ))}
       </main>
     </>
