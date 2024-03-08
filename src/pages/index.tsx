@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import Head from "next/head";
 import Link from "next/link";
 

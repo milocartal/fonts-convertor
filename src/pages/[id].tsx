@@ -49,14 +49,12 @@ const Font: NextPage<
   const params = useParams();
   if (!params?.id) return "Pas de font trouve";
 
-  const convert = api.font.convertFont2.useMutation();
+  const convert = api.font.convertFont.useMutation();
   const deleteFont = api.font.deleteFontFile.useMutation();
 
   async function convertFont(filename: string, url: string) {
     try {
-      const result = await convert.mutateAsync({ filename, url });
-      console.log("result", result);
-      const downloadUrl = result; // Assurez-vous que `result` est l'URL du fichier à télécharger
+      const downloadUrl = await convert.mutateAsync({ filename, url });
 
       // Créer un élément <a> temporaire pour déclencher le téléchargement
       const downloadElement = document.createElement("a");
@@ -87,16 +85,6 @@ const Font: NextPage<
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
         <h1 className="text-3xl text-white">{params.id ?? "Font Name"}</h1>
-
-        {/* variants?.map((variant) => (
-          <Link
-            href={variant.url}
-            key={variant.filename}
-            className="text-2xl text-white"
-          >
-            {variant.filename}
-          </Link>
-        )) */}
 
         {variants?.map((variant) => (
           <button

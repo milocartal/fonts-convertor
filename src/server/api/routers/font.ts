@@ -3,13 +3,10 @@
 import { z } from "zod";
 import axios from "axios";
 import {
-  createWriteStream,
   mkdirSync,
   existsSync,
-  rename,
-  PathLike,
+  type PathLike,
   renameSync,
-  unlink,
   unlinkSync,
 } from "fs";
 import path, { join } from "path";
@@ -73,62 +70,6 @@ export const fontRouter = createTRPCRouter({
 
   convertFont: publicProcedure
     .input(z.object({ filename: z.string(), url: z.string() }))
-    .mutation(async ({ input, ctx }) => {
-      const { filename, url } = input;
-
-      let finalpath = "";
-
-      // Chemin du répertoire où le fichier converti sera enregistré
-      const outputPath = join(process.cwd(), "public", "fonts");
-      if (!existsSync(outputPath)) {
-        mkdirSync(outputPath, { recursive: true });
-      }
-
-      try {
-        // Téléchargement du fichier source
-        const response = await axios.get(url, { responseType: "arraybuffer" });
-        const sourcePath = join(outputPath, filename);
-        const fontmin = new Fontmin()
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-          .src(response.data)
-          .use(Fontmin.ttf2woff2({ clone: false }))
-          .dest(outputPath);
-
-        // Exécution de la conversion
-        fontmin.run((err, files) => {
-          if (err) {
-            throw err;
-          }
-          const desiredName = filename.replace(".ttf", ".woff2");
-          const convertedFilePath = files[0].path as PathLike; // Chemin du fichier converti
-          const desiredFilePath = join(outputPath, desiredName); // Chemin et nom désirés pour le fichier converti
-
-          // Renommer le fichier converti avec le nom désiré
-          rename(convertedFilePath, desiredFilePath, (renameErr) => {
-            if (renameErr) {
-              throw renameErr;
-            }
-            console.log(
-              "Fichier renommé avec succès:",
-              desiredFilePath.split("public")[1]!,
-            );
-          });
-        });
-        return finalpath;
-      } catch (error) {
-        console.error(
-          "Erreur lors du téléchargement ou de la conversion:",
-          error,
-        );
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Erreur lors de la conversion de la police",
-        });
-      }
-    }),
-
-  convertFont2: publicProcedure
-    .input(z.object({ filename: z.string(), url: z.string() }))
     .mutation(async ({ input }) => {
       const { filename, url } = input;
 
@@ -142,6 +83,7 @@ export const fontRouter = createTRPCRouter({
         const response = await axios.get(url, { responseType: "arraybuffer" });
 
         const sourcePath = join(outputPath, filename); // Utiliser tempPath pour le travail intermédiaire
+        console.log("sourcePath", sourcePath);
 
         // Sauvegarder le fichier temporairement
         const fontmin = new Fontmin()
@@ -157,7 +99,7 @@ export const fontRouter = createTRPCRouter({
               reject(err);
             } else {
               const desiredName = filename.replace(".ttf", ".woff2");
-              const convertedFilePath = files[0].path as PathLike; // Chemin du fichier converti
+              const convertedFilePath = files[0]!.path as PathLike; // Chemin du fichier converti
               const desiredFilePath = join(outputPath, desiredName); // Chemin et nom désirés pour le fichier converti
 
               // Renommer et déplacer le fichier converti au chemin final
