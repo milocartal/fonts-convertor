@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Image from "next/image";
 
 import { api } from "~/utils/api";
@@ -10,10 +9,40 @@ import {
   CommandItem,
   CommandList,
 } from "~/components/ui/command";
-import { type NextPage } from "next";
+import {
+  type GetServerSideProps,
+  type InferGetServerSidePropsType,
+  type NextPage,
+} from "next";
+import { useRouter } from "next/router";
+import { type FontList } from "~/utils/type";
 
-const Home: NextPage = () => {
-  const { data: fontList } = api.font.getAll.useQuery();
+export const getServerSideProps: GetServerSideProps<{
+  fontList: FontList;
+}> = async function () {
+  const temp = await fetch(`https://fonts.google.com/metadata/fonts`, {
+    method: "GET",
+    headers: { accept: "application/json" },
+  });
+
+  if (!temp.ok) {
+    throw new Error(`API request failed with status ${temp.status}`);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const fonts: FontList = await temp.json();
+  return {
+    props: {
+      fontList: JSON.parse(JSON.stringify(fonts)) as FontList,
+    },
+  };
+};
+
+const Home: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = ({ fontList }) => {
+  //const { data: fontList } = api.font.getAll.useQuery();
+  const router = useRouter();
 
   return (
     <main className="flex min-h-screen items-center justify-center gap-24">
@@ -28,8 +57,11 @@ const Home: NextPage = () => {
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
           {fontList?.familyMetadataList.map((font, i) => (
-            <CommandItem key={i} asChild>
-              <Link href={`/${font.family}`}>{font.family}</Link>
+            <CommandItem
+              key={i}
+              onSelect={() => console.log("Selected", font.family)}
+            >
+              {font.family}
             </CommandItem>
           ))}
         </CommandList>
