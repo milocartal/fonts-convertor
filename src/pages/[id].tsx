@@ -7,7 +7,6 @@ import type {
   NextPage,
 } from "next";
 import Head from "next/head";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 
 import { api } from "~/utils/api";
