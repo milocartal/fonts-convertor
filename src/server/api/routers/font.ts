@@ -99,6 +99,7 @@ export const fontRouter = createTRPCRouter({
               reject(err);
             } else {
               const desiredName = filename.replace(".ttf", ".woff2");
+              // @ts-expect-error-next-line
               const convertedFilePath = files[0]!.path as PathLike; // Chemin du fichier converti
               const desiredFilePath = join(outputPath, desiredName); // Chemin et nom désirés pour le fichier converti
 
